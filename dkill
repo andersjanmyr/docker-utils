@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -o errexit
+
+program=`basename $0`
+
+if [ $# -lt 1 ]
+then
+  echo "Invalid number of arguments: $#"
+  echo "Usage: $program pattern"
+  exit 1
+fi
+
+linecount=$(docker ps |grep $1| wc -l)
+if [[ $linecount != 1 ]]; then
+  echo 'Error, multiple matching containers'
+  docker ps|grep $1
+  exit 1
+fi
+
+id=$(docker ps | grep $1 | awk '{print $1}')
+docker kill $id
+
