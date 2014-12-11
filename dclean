@@ -1,0 +1,69 @@
+#!/bin/bash
+
+program=`basename $0`
+
+ARGS=$(getopt -o acih? -l "all,images,container,help" -n "$program" -- "$@");
+
+function usage() {
+  cat <<EOT
+Usage: $program
+  --all (-a)
+  --containers (-c)
+  --images (-i)
+  --help (-h|-?)
+EOT
+}
+
+# Don't fail on error until after parsing
+set -o errexit
+
+# Replace args with parsed arguments
+eval set -- "$ARGS";
+
+
+while true; do
+  case "$1" in
+    -a|--all)
+      shift;
+      opt_containers=true
+      opt_images=true
+      break
+      ;;
+    -c|--containers)
+      shift;
+      opt_containers=true
+      break
+      ;;
+    -i|--images)
+      shift;
+      opt_images=true
+      break
+      ;;
+    -h|-?|--help)
+      shift;
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Invalid argument $1"
+      shift
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+cat <<EOT
+opt_images=$opt_images
+opt_containers=$opt_containers
+EOT
+
+if [ -n "$opt_containers" ]; then
+  echo 'Removing stopped containers'
+  docker rm $(docker ps -a -q)
+fi
+if [ -n "$opt_images" ]; then
+  echo 'Removing unnamed images'
+  ids=$(docker images -a |grep '^<none>' | awk '{ print $3 }')
+  docker rmi $ids
+fi
