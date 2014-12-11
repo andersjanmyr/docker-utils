@@ -53,14 +53,13 @@ while true; do
   esac
 done
 
-cat <<EOT
-opt_images=$opt_images
-opt_containers=$opt_containers
-EOT
-
 if [ -n "$opt_containers" ]; then
   echo 'Removing stopped containers'
-  docker rm $(docker ps -a -q)
+  if ! docker rm $(docker ps -a -q); then
+    echo 'Failed to remove running containers'
+    docker ps -a
+    exit 2
+  fi
 fi
 if [ -n "$opt_images" ]; then
   echo 'Removing unnamed images'
