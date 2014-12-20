@@ -27,22 +27,23 @@ while true; do
       shift;
       opt_containers=true
       opt_images=true
-      break
       ;;
     -c|--containers)
       shift;
       opt_containers=true
-      break
       ;;
     -i|--images)
       shift;
       opt_images=true
-      break
       ;;
-    -h|-?|--help)
+    -h|-\?|--help)
       shift;
       usage
       exit 0
+      ;;
+    --)
+      shift
+      break
       ;;
     *)
       echo "Invalid argument $1"
@@ -53,7 +54,7 @@ while true; do
   esac
 done
 
-if [ -n "$opt_containers" ]; then
+if [ -z "$opt_containers" ]; then
   echo 'Removing stopped containers'
   if ! docker rm $(docker ps -a -q); then
     echo 'Failed to remove running containers'
@@ -61,7 +62,7 @@ if [ -n "$opt_containers" ]; then
     exit 2
   fi
 fi
-if [ -n "$opt_images" ]; then
+if [ -z "$opt_images" ]; then
   echo 'Removing unused images'
   ids=$(docker images -q --filter "dangling=true")
   docker rmi $ids

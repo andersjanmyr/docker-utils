@@ -11,12 +11,5 @@ then
   exit 1
 fi
 
-linecount=$(docker ps |grep $1| wc -l)
-if [[ $linecount != 1 ]]; then
-  echo 'Error, multiple matching containers'
-  docker ps|grep $1
-  exit 1
-fi
-
-id=$(docker ps | grep $1 | awk '{print $1}')
+id=$($current_dir/did $1)
 docker exec -i -t $id bash
