@@ -1,18 +1,9 @@
 #!/bin/bash
 
 program=`basename $0`
-
+current_dir="${BASH_SOURCE[0]%/*}"
 set -o errexit
 
-current_dir="${BASH_SOURCE[0]%/*}"
-
-if [ $# -lt 1 ]
-then
-  echo "Invalid number of arguments: $#"
-  echo "Usage: $program pattern"
-  exit 1
-fi
-
-id=$($current_dir/did $1)
-docker kill "$id"
+id=$($current_dir/did $@)
+docker kill $id
 

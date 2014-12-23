@@ -2,21 +2,71 @@
 
 current_dir="${BASH_SOURCE[0]%/*}"
 
-set -o errexit
-
 program=`basename $0`
 
-if [ $# -lt 1 ]
-then
+GETOPT=getopt
+platform=$(uname)
+if [[ "$platform" == 'Darwin' ]]; then
+  if brew ls gnu-getopt >/dev/null; then
+    GETOPT=$(brew ls gnu-getopt | head -1)
+  else
+    echo 'Error: getopt on OSX does not parse arguments properly' >&2
+    echo 'brew install gnu-getopt' >&2
+    exit 1
+  fi
+fi
+ARGS=$($GETOPT -o mh? -l "multi,help" -n "$program" -- "$@");
+
+function usage() {
+  cat <<EOT
+Usage: $program
+  --multi (-m)
+  --help (-h|-?)
+EOT
+}
+
+# Don't fail on error until after parsing
+set -o errexit
+
+# Replace args with parsed arguments
+eval set -- "$ARGS";
+
+while true; do
+  case "$1" in
+    -m|--multi)
+      shift;
+      multi=true
+      ;;
+    -h|-\?|--help)
+      shift;
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "Invalid argument $1"
+      shift
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+pattern=$1
+
+if [ -z "$pattern" ]; then
   echo "Invalid number of arguments: $#"
   echo "Usage: $program pattern"
   exit 1
 fi
 
 linecount=$(docker ps |grep $1| wc -l)
-
-if (( $linecount > 1 )); then
+if [ -z "$multi" ] && (( $linecount > 1 )); then
   echo 'Error, multiple matching containers' >&2
+  echo 'Use --multi (-m) to allow this' >&2
   docker ps | grep $1 >&2
   exit 1
 fi

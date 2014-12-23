@@ -5,12 +5,11 @@ program=`basename $0`
 GETOPT=getopt
 platform=$(uname)
 if [[ "$platform" == 'Darwin' ]]; then
-  if command -v gnu-getopt >/dev/null 2>&1; then
-    GETOPT=gnu-getopt
+  if brew ls gnu-getopt >/dev/null; then
+    GETOPT=$(brew ls gnu-getopt | head -1)
   else
     echo 'Error: getopt on OSX does not parse arguments properly' >&2
     echo 'brew install gnu-getopt' >&2
-    echo 'then symlink gnu-getopt to /usr/local/Cellar/gnu-getopt/1.1.5/bin/getopt' >&2
     exit 1
   fi
 fi
