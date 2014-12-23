@@ -2,7 +2,19 @@
 
 program=`basename $0`
 
-ARGS=$(getopt -o acih? -l "all,images,container,help" -n "$program" -- "$@");
+GETOPT=getopt
+platform=$(uname)
+if [[ "$platform" == 'Darwin' ]]; then
+  if command -v gnu-getopt >/dev/null 2>&1; then
+    GETOPT=gnu-getopt
+  else
+    echo 'Error: getopt on OSX does not parse arguments properly' >&2
+    echo 'brew install gnu-getopt' >&2
+    echo 'then symlink gnu-getopt to /usr/local/Cellar/gnu-getopt/1.1.5/bin/getopt' >&2
+    exit 1
+  fi
+fi
+ARGS=$($GETOPT -o acih? -l "all,images,container,help" -n "$program" -- "$@");
 
 function usage() {
   cat <<EOT
@@ -19,7 +31,6 @@ set -o errexit
 
 # Replace args with parsed arguments
 eval set -- "$ARGS";
-
 
 while true; do
   case "$1" in
