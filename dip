@@ -6,13 +6,7 @@ set -o errexit
 
 program=`basename $0`
 
-if [ $# -lt 1 ]
-then
-  echo "Invalid number of arguments: $#"
-  echo "Usage: $program pattern"
-  exit 1
-fi
-
 id=$($current_dir/did $1)
+echo $id
 docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id
 
