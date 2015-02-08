@@ -58,9 +58,10 @@ done
 pattern=$1
 
 if [ -z "$pattern" ]; then
-  echo "Invalid number of arguments: $#"
-  echo "Usage: $program pattern"
-  exit 1
+  id=$(docker ps -l -q)
+  echo -n $id | pbcopy
+  echo $id
+  exit 0
 fi
 
 linecount=$(docker ps |grep $1| wc -l)
@@ -79,5 +80,6 @@ fi
 
 
 id=$(docker ps | grep $1 | awk '{print $1}')
+echo -n $id | pbcopy
 echo $id
 
