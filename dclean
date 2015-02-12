@@ -13,7 +13,7 @@ if [[ "$platform" == 'Darwin' ]]; then
     exit 1
   fi
 fi
-ARGS=$($GETOPT -o acih? -l "all,images,container,help" -n "$program" -- "$@");
+ARGS=$($GETOPT -o acih? -l "all,images,containers,help" -n "$program" -- "$@");
 
 function usage() {
   cat <<EOT
@@ -64,7 +64,12 @@ while true; do
   esac
 done
 
-if [ -z "$opt_containers" ]; then
+if [ -z "$opt_containers" ] && [ -z "$opt_images" ] ; then
+  usage
+  exit 1
+fi
+
+if [ -n "$opt_containers" ]; then
   echo 'Removing stopped containers'
   if ! docker rm $(docker ps -a -q); then
     echo 'Failed to remove running containers'
@@ -72,7 +77,7 @@ if [ -z "$opt_containers" ]; then
     exit 2
   fi
 fi
-if [ -z "$opt_images" ]; then
+if [ -n "$opt_images" ]; then
   echo 'Removing unused images'
   ids=$(docker images -q --filter "dangling=true")
   docker rmi $ids
