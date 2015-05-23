@@ -1,0 +1,14 @@
+#!/bin/bash
+
+project=$1
+host='docker.janmyr.com'
+image="andersjanmyr/$project"
+dns="${project}.janmyr.com"
+
+pushd ~/Projects/secret
+scp -r $project $host:/tmp
+popd
+
+ssh $host docker run -d -e VIRTUAL_HOST=$dns --env-file /tmp/$project/env $image
+
+
