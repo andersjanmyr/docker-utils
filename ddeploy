@@ -5,7 +5,7 @@ host='docker.janmyr.com'
 image="andersjanmyr/$project"
 dns="${project}.janmyr.com"
 
-pushd ~/Projects/secret
+pushd ~/Projects/secrets
 scp -r $project $host:/tmp
 popd
 
