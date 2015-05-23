@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 project=$1
 host='docker.janmyr.com'
@@ -9,6 +9,13 @@ pushd ~/Projects/secrets
 scp -r $project $host:/tmp
 popd
 
-ssh $host docker run -d -e VIRTUAL_HOST=$dns --env-file /tmp/$project/env $image
+ssh $host "\
+  docker kill $project; \
+  docker rm $project; \
+  docker run -d \
+  -e VIRTUAL_HOST=$dns \
+  --env-file /tmp/$project/env \
+  --name $project \
+  $image"
 
 
