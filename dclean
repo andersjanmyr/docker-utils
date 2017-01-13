@@ -71,7 +71,7 @@ fi
 
 if [ -n "$opt_containers" ]; then
   echo 'Removing stopped containers'
-  if ! docker rm $(docker ps -a -q); then
+  if ! docker rm -v $(docker ps -a -q); then
     echo 'Failed to remove running containers'
     docker ps -a
     exit 2
